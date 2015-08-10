@@ -1,0 +1,107 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html 	xmlns="http://www.w3.org/1999/xhtml"
+		xmlns:h="http://java.sun.com/jsf/html"
+		xmlns:f="http://java.sun.com/jsf/core"
+		xmlns:ui="http://java.sun.com/jsf/facelets"
+		xmlns:p="http://primefaces.org/ui">
+
+<h:head>
+	<title>Cambio de fallas</title>
+	<link href="css/estilo.css" rel="stylesheet" type="text/css"/>
+	<script type="text/javascript">
+		function limpia(elemento){
+			elemento.value = "";
+		}
+    </script>
+</h:head>
+<h:body onload="document.getElementById('form:numero').focus();">	
+	<p:panel header="Industrias Nettalco S.A. - Cambios de Fallas por OB" style="text-align:center;width:1300px;margin:0 auto;">
+	<h:form id="form" >
+	<p:growl id="mensaje" showDetail="true"/>
+		<p:panelGrid id="datosCambio" columns="1" style="text-align:center;width:45%" >
+			<p:outputPanel id="dUser" style="font-size:11px;text-align:center;width:100%;margin:0 auto;">
+			<p:panelGrid id="usuarios" columns="6" styleClass="panelClear">
+				<p:outputLabel for="HechoPor" value="Usuario"/>
+				<p:selectOneMenu id="HechoPor" value="#{controladorCF.usuario}">
+					<f:selectItem itemLabel="Seleccione" itemValue="0"/>	
+					<f:selectItems value="#{controladorCF.listUser}"/>
+				</p:selectOneMenu>
+				<p:fieldset styleClass="fieldClear2"/>	
+				<p:outputLabel for="SolicitadoPor" value="Solicitante"/>
+				<p:selectOneMenu id="SolicitadoPor" value="#{controladorCF.solicitante}">
+					<f:selectItem itemLabel="Seleccione" itemValue="0"/>	
+					<f:selectItems value="#{controladorCF.listSoli}"/>
+				</p:selectOneMenu>
+			</p:panelGrid>
+			</p:outputPanel>
+			<p:outputPanel id="dOB" style="font-size:11px;text-align:center;width:100%;margin:0 auto;" styleClass="panelClear">	
+				<p:panelGrid id="hacerCambio" columns="21">
+					<p:outputLabel value="OB"/>
+					<p:panelGrid styleClass="panelNoClear"/><p:panelGrid styleClass="panelNoClear"/><p:panelGrid styleClass="panelNoClear"/>
+					<p:fieldset styleClass="fieldClear2"/>
+					<p:inputText value="#{controladorCF.ordenB}" size="6" onclick="limpia(this)" />
+					<p:fieldset styleClass="fieldClear2"/><p:fieldset styleClass="fieldClear2"/><p:fieldset styleClass="fieldClear2"/>
+					<p:fieldset styleClass="fieldClear2"/><p:fieldset styleClass="fieldClear2"/><p:fieldset styleClass="fieldClear2"/>
+					<p:panelGrid styleClass="panelNoClear2"/><p:panelGrid styleClass="panelNoClear2"/>
+					<p:commandButton value="Ejecutar Cambio" onclick="dlg_msg.show()" styleClass="centrado"
+					actionListener="#{controladorCF.ejecCambOrigFallaOB}" update="msg_dinamic"/>
+					<p:commandButton value="Limpiar" styleClass="centrado"
+					actionListener="#{controladorCF.limpiar}" update="dOB dUser"/>
+				</p:panelGrid>
+				<p:panelGrid id="Cambiado" columns="2">
+					<p:outputLabel for="fallaA" value="Falla Actual"/>
+					<p:selectOneMenu id="fallaA" value="#{controladorCF.fallaAnte}">
+						<f:selectItem itemLabel="Seleccione" itemValue="0"/>	
+						<f:selectItems value="#{controladorCF.listFall}"/>
+					</p:selectOneMenu>
+					<p:outputLabel for="fallaR" value="Falla Nueva"/>
+					<p:selectOneMenu id="fallaR" value="#{controladorCF.fallaNuev}">
+						<f:selectItem itemLabel="Seleccione" itemValue="0"/>	
+						<f:selectItems value="#{controladorCF.listFall}"/>
+					</p:selectOneMenu>											
+				</p:panelGrid>
+			</p:outputPanel>
+		</p:panelGrid>
+		
+		<p:dialog id="dialog_msg" header="Mensaje" widgetVar="dlg_msg" resizable="false" modal="true"
+			style="font-size:10px;text-align:left;">
+			<p:outputLabel id="msg_dinamic">
+				<p:graphicImage id="imgdinamic" value="#{controladorCF.estiloIMG}"/>
+				<p:outputLabel value="#{controladorCF.msgOut}" styleClass="#{controladorCF.estiloCSS}"/>
+				<p:panelGrid></p:panelGrid>
+				<p:commandButton value="Aceptar"  oncomplete="dlg_msg.hide();" styleClass="centrado"
+				 actionListener="#{controladorCF.actualizarTabla}" update=":form"/>	
+			</p:outputLabel>
+		</p:dialog>
+		<br/>
+		<p:dataTable id="listaOB"  value="#{controladorCF.listRegiCambFall}" var="regiCamb" style="font-size:10px;" styleClass="tablaOT"
+		paginatorTemplate="{FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+		paginator="true" rows="25" rowsPerPageTemplate="10,15,25"
+		resizableColumns="true">
+				<f:facet  name="header">
+				<h:commandButton actionListener="#{controladorCF.actualizarTabla}" title="Refrescar tabla"
+					image="/images/boton_actualizar.png"  styleClass="izquierda">
+					<p:ajax update="listaOB"/>
+				</h:commandButton>	 		<!-- Revisar la ejecucion de la peticion Ajax -->
+				<h:outputLabel style="font-size:12px;" value="Ultimos Cambios de Falla"/>			
+				</f:facet>
+		
+				<p:column headerText="N°" style="text-align:center;width:12px;">#{regiCamb.numeSoli}</p:column>
+				<p:column headerText="Fecha" width="77">#{regiCamb.fechaRegi}</p:column>
+				<p:column headerText="Usuario" width="135">#{regiCamb.userRegi}</p:column>
+				<p:column headerText="Solicitante" width="135">#{regiCamb.userSoli}</p:column>
+				<p:column headerText="OB" width="40">#{regiCamb.OB}</p:column>
+				<p:column headerText="Articulo"  style="width:165px">
+					<f:facet name="header"> <h:outputText value="Articulo"/> </f:facet>
+					<h:outputText value="#{regiCamb.codiArti}"/>
+				</p:column>
+				<!-- <p:column headerText="Articulo" style="width:30px">#{regiCamb.codiArti}</p:column> -->
+				<p:column headerText="Color" width="165" >#{regiCamb.codicolo}</p:column>
+				<p:column rendered="true" style="width:195px;" headerText="Falla Anterior">#{regiCamb.fallAnte}</p:column>
+				<p:column headerText="Falla Nueva" width="195">#{regiCamb.fallNuev}</p:column>
+		</p:dataTable>
+	</h:form>
+	</p:panel>
+</h:body>
+</html>
